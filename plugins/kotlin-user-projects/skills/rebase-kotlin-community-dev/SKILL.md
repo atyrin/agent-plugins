@@ -21,7 +21,7 @@ The goal is to move that commit stack onto the latest `origin/<default>` in a wo
 - Use only the `origin` remote. Don't search for, add, or fetch from the original open-source repository or any other remote.
 - Never rebase `kotlin-community/dev` directly. Rebase a working branch, and move the result into `kotlin-community/dev` only after the TeamCity build is green.
 - Never push `kotlin-community/dev`. At the end, suggest the push command and leave it to the user.
-- Push the working branch only after explicit user confirmation, and only as a new branch, without force.
+- Push the newly created working branch to `origin` before asking for the TeamCity build: TeamCity can only run a build for a branch that exists on the remote. Push it only as a new branch, without force.
 - Don't run a local build or any real Gradle tasks. The only local Gradle check is the configuration dry run.
 - Never downgrade dependencies or tooling from the new base to make a customization apply. If a QG commit bumped a version and the base now has a newer one, keep the base's version.
 - Never drop the external Kotlin version or repository mechanism to make things pass.
@@ -129,13 +129,15 @@ Check only that Gradle configures successfully with the Kotlin version under tes
 
 If configuration fails, assume the rebase caused it until the logs prove otherwise. Fix a rebase regression, such as a lost customization or a bad conflict resolution, by amending the relevant commit: use `git commit --fixup <sha>`, then `GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash origin/<default>`. Rerun the dry run afterward. For a failure that doesn't come from the rebase, report it and ask the user how to proceed.
 
-## Step 7. Report and Ask for a TeamCity Build
+## Step 7. Push the Working Branch and Ask for a TeamCity Build
 
-1. Tell the user that the rebase is done in `$REBASE_BRANCH`. Summarize the old base and new base (SHA and date), the number of new base commits, the commits you kept, adapted, or dropped, the conflicts you resolved, and the dry-run result.
-2. TeamCity can only build a branch that exists on `origin`. Ask for confirmation, then push the working branch as a new branch, without force:
+1. Push the working branch to `origin` before asking for a build. TeamCity can only build a branch that exists on the remote, so without this push there's nothing to run. It's a new branch, so push it without force:
    ```bash
    git push -u origin $REBASE_BRANCH
+   git ls-remote --heads origin $REBASE_BRANCH   # confirm the branch is on origin
    ```
+   If the push fails (for example, because a branch with that name already exists on `origin`), don't force it. Report the error and ask the user how to proceed.
+2. Tell the user that the rebase is done and that `$REBASE_BRANCH` is pushed to `origin`. Summarize the old base and new base (SHA and date), the number of new base commits, the commits you kept, adapted, or dropped, the conflicts you resolved, and the dry-run result.
 3. Ask the user to start the TeamCity build for `$REBASE_BRANCH` and share the link to it. Then wait for the link.
 
 ## Step 8. User Starts the Build

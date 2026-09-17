@@ -1,6 +1,6 @@
 {
   "name": "kotlin-user-projects",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Skills for maintaining Kotlin user-project forks used as Kotlin quality gates: rebasing kotlin-community/dev and wiring custom Kotlin repositories.",
   "author": {
     "name": "Andrei Tyrin",

@@ -14,7 +14,7 @@ The `kotlin-user-projects` plugin contains these skills:
 
 | Skill | What it does |
 | --- | --- |
-| `rebase-kotlin-community-dev` | Rebases `kotlin-community/dev` onto the latest `origin` `main`/`master` in a working branch and checks Gradle configuration with a dry run. Then it asks you for a TeamCity build, tracks it, and, when it's green, moves the result into `kotlin-community/dev` locally. It suggests the push but doesn't run it. |
+| `rebase-kotlin-community-dev` | Rebases `kotlin-community/dev` onto the latest `origin` `main`/`master` in a working branch and checks Gradle configuration with a dry run. Then it pushes the working branch so you can start a TeamCity build, tracks that build, and, when it's green, moves the result into `kotlin-community/dev` locally. It suggests the push but doesn't run it. |
 | `update-kotlin-repo-exclusive-content` | Declares the custom Kotlin Maven repository (`kotlin_repo_url`) through Gradle `exclusiveContent`, so it serves only Kotlin artifacts of the supplied Kotlin version. |
 
 ### Requirements
