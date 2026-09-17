@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rebase kotlin-community/dev"
+  short_description: "Rebase Kotlin quality-gate fork onto origin main/master and verify on TeamCity"
+  default_prompt: "Use $rebase-kotlin-community-dev to rebase kotlin-community/dev of this Kotlin quality-gate fork onto the latest origin main/master in a working branch, verify it on TeamCity, and move it into kotlin-community/dev."

@@ -1,0 +1,36 @@
+{
+  "name": "kotlin-user-projects",
+  "version": "0.2.0",
+  "description": "Skills for maintaining Kotlin user-project forks used as Kotlin quality gates: rebasing kotlin-community/dev and wiring custom Kotlin repositories.",
+  "author": {
+    "name": "Andrei Tyrin",
+    "url": "https://github.com/atyrin"
+  },
+  "homepage": "https://github.com/atyrin/agent-plugins",
+  "repository": "https://github.com/atyrin/agent-plugins",
+  "keywords": [
+    "kotlin",
+    "gradle",
+    "quality-gate",
+    "user-projects",
+    "rebase",
+    "teamcity"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Kotlin User Projects",
+    "shortDescription": "Maintain Kotlin user-project forks used to test new Kotlin versions",
+    "longDescription": "Skills for open-source project forks that check new Kotlin versions on kotlin-community/* branches. Rebase kotlin-community/dev onto the latest main/master, verify the result on TeamCity, and declare the custom Kotlin Maven repository through Gradle exclusiveContent.",
+    "developerName": "Andrei Tyrin",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/atyrin/agent-plugins",
+    "defaultPrompt": [
+      "Rebase kotlin-community/dev onto the latest origin master.",
+      "Declare the custom Kotlin repository with exclusiveContent."
+    ]
+  }
+}

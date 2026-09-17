@@ -1,0 +1,20 @@
+{
+  "name": "agent-plugins",
+  "interface": {
+    "displayName": "Andrei Tyrin agent plugins"
+  },
+  "plugins": [
+    {
+      "name": "kotlin-user-projects",
+      "source": {
+        "source": "local",
+        "path": "./plugins/kotlin-user-projects"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

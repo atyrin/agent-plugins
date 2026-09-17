@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kotlin Repo Exclusive Content"
+  short_description: "Update Kotlin custom Maven repo filtering"
+  default_prompt: "Use $update-kotlin-repo-exclusive-content to update this Kotlin user-project fork so its custom Kotlin Maven repository is declared through Gradle exclusiveContent."
