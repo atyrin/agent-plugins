@@ -146,7 +146,11 @@ The user starts the build on TeamCity and shares the build URL. Take the build I
 
 ## Step 9. Track the Build
 
-Load the `teamcity-cli` skill and follow its guidance. Don't guess flags. In short:
+This step needs both the `teamcity` CLI and the `teamcity-cli` skill. Load the `teamcity-cli` skill and follow its guidance. Don't guess flags.
+
+If the skill isn't available, stop and ask the user to install it with `teamcity skill install teamcity-cli`, then restart the agent session so the skill gets picked up. If the `teamcity` CLI itself is missing, point the user to https://github.com/JetBrains/teamcity-cli. If the CLI isn't authenticated (`teamcity auth status`), ask the user to run `teamcity auth login -s <server-url>`.
+
+In short:
 
 ```bash
 teamcity auth status

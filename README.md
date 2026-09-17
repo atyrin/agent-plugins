@@ -20,7 +20,16 @@ The `kotlin-user-projects` plugin contains these skills:
 ### Requirements
 
 - Codex CLI with plugin support (`codex plugin`).
-- For `rebase-kotlin-community-dev`: the [TeamCity CLI](https://github.com/JetBrains/teamcity-cli) (`teamcity`) with its `teamcity-cli` skill, authenticated against your TeamCity server.
+- For `rebase-kotlin-community-dev`, which tracks TeamCity builds, you need both of these:
+  - The [TeamCity CLI](https://github.com/JetBrains/teamcity-cli) (`teamcity`), authenticated against your TeamCity server:
+    ```bash
+    teamcity auth login -s <server-url>
+    ```
+  - The `teamcity-cli` agent skill, which teaches the agent how to use the CLI. The CLI alone isn't enough. Install the skill with the CLI, then restart Codex:
+    ```bash
+    teamcity skill install teamcity-cli
+    ```
+    Check that it's installed with `ls ~/.codex/skills/teamcity-cli`.
 
 ## Install
 
