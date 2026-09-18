@@ -123,7 +123,16 @@ Check only that Gradle configures successfully with the Kotlin version under tes
 ./gradlew --dry-run help -Pkotlin_version=<ver> -Pkotlin_repo_url=https://redirector.kotlinlang.org/maven/dev
 ```
 
-- For `<ver>`, use the Kotlin version from the latest `kotlin-community/<version>` branch, or ask the user.
+Pick `<ver>` yourself unless the user names a version: take the latest Beta or RC, and if there's no Beta or RC newer than the latest stable release, take that stable release. The published versions are listed here:
+
+```bash
+curl -s https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | grep -o '<version>[^<]*</version>' | tail -15
+```
+
+The list is in release order, so the newest versions are at the end. For example, with `... 2.4.20-RC3, 2.4.20` at the end, use `2.4.20`, and with `... 2.4.20, 2.5.0-Beta1` use `2.5.0-Beta1`. Ignore `-dev-` and `-M` builds unless the user asks for one. If the list isn't reachable, fall back to the version from the newest `kotlin-community/<version>` branch on `origin`, and say which version you picked and why.
+
+Other notes:
+
 - Pass `kotlin_language_version` / `kotlin_api_version` only if the user asks or CI passes them.
 - If the build uses configuration on demand, add `-Dorg.gradle.configureondemand=false` so the whole build is configured.
 
