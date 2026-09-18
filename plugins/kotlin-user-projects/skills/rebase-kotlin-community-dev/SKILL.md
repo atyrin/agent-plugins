@@ -1,6 +1,6 @@
 ---
 name: rebase-kotlin-community-dev
-description: Rebase the kotlin-community/dev branch of a Kotlin quality-gate fork onto the latest main/master from the JetBrains origin remote, in a separate working branch. Checks Gradle configuration with a dry run, has the user run a TeamCity build, tracks that build, and moves the result into kotlin-community/dev when it's green. Preserves the quality-gate customizations (custom Kotlin version, custom Kotlin Maven repository, language/API version overrides, compatibility fixes). Use when asked to rebase, sync, refresh, or update a Kotlin user-project / quality-gate / KCT fork, or to bring kotlin-community/dev up to date with main or master.
+description: Rebase the kotlin-community/dev branch of a Kotlin quality-gate fork onto the latest main/master from the JetBrains origin remote, in a separate working branch. Checks Gradle configuration with a dry run, has the user run a TeamCity build, tracks that build, and moves the result into kotlin-community/dev when the build is green and not much slower than before. Preserves the quality-gate customizations (custom Kotlin version, custom Kotlin Maven repository, language/API version overrides, compatibility fixes). Use when asked to rebase, sync, refresh, or update a Kotlin user-project / quality-gate / KCT fork, or to bring kotlin-community/dev up to date with main or master.
 ---
 
 # Rebase kotlin-community/dev onto origin main/master
@@ -20,7 +20,7 @@ The goal is to move that commit stack onto the latest `origin/<default>` in a wo
 
 - Use only the `origin` remote. Don't search for, add, or fetch from the original open-source repository or any other remote.
 - Never rebase `kotlin-community/dev` directly. Rebase a working branch, and move the result into `kotlin-community/dev` only after the TeamCity build is green.
-- Never push `kotlin-community/dev`. At the end, suggest the push command and leave it to the user.
+- Push `kotlin-community/dev` only when the TeamCity build is green *and* its duration is less than 1.5x the baseline. Otherwise, report the numbers and leave the push to the user.
 - Push the newly created working branch to `origin` before asking for the TeamCity build: TeamCity can only run a build for a branch that exists on the remote. Push it only as a new branch, without force.
 - Don't run a local build or any real Gradle tasks. The only local Gradle check is the configuration dry run.
 - Never downgrade dependencies or tooling from the new base to make a customization apply. If a QG commit bumped a version and the base now has a newer one, keep the base's version.
@@ -171,24 +171,45 @@ If the build fails:
 3. Report the failures to the user and propose fixes. Leave `kotlin-community/dev` unchanged.
 4. If the user asks for fixes, commit them on the working branch. Rebase regressions go in as fixup commits; new Kotlin-compatibility fixes go in as `[QG] ...` commits. Rerun the dry run, then ask before pushing the updated working branch; if the history was rewritten, push with `--force-with-lease`. Then return to step 7 for a new build.
 
-## Step 10. Green Build: Move the Result into kotlin-community/dev
+## Step 10. Green Build: Check the Duration
 
-When the build, including every child build, is green:
+When the build, including every child build, is green, compare how long it took with how long the same job takes on `kotlin-community/dev`. A rebase that pulls in an upstream change can make the build much slower, and that's worth catching before the change lands.
 
-1. Tell the user that the build passed and include the link.
-2. Back up the current `kotlin-community/dev`, then move it to the working branch locally:
+1. Take the new build's duration:
+   ```bash
+   teamcity run view <buildId> --json
+   ```
+2. Take the baseline from the last few successful builds of the same job on `kotlin-community/dev`:
+   ```bash
+   teamcity run list --job <jobId> --branch kotlin-community/dev --status success -n 5 --json
+   ```
+   Use the median duration of those builds as the baseline. Compare builds of the same job; for a build chain, compare the whole chain with the whole chain. If there's no successful build on `kotlin-community/dev` to compare with, say so and treat the duration check as not performed, which counts as not passed.
+3. Report both numbers and the ratio.
+4. If the new duration is **less than 1.5x** the baseline, the duration check passes. Go to step 11.
+5. If it's **1.5x or more**, or there's no baseline, the check doesn't pass. Don't push anything. Report the slowdown, suggest looking into which upstream change caused it, and ask the user how to proceed. `kotlin-community/dev` may still be updated locally, as in step 11, but leave the push to the user.
+
+## Step 11. Move the Result into kotlin-community/dev and Push
+
+1. Back up the current `kotlin-community/dev`, then move it to the working branch locally:
    ```bash
    OLD_DEV=$(git rev-parse kotlin-community/dev)
    git branch backup/kotlin-community-dev-$(date +%Y%m%d) $OLD_DEV
    git checkout kotlin-community/dev
    git reset --hard $REBASE_BRANCH
    ```
-3. Restore any stash from step 1 if the user wants it (`git stash pop`).
-4. Suggest the push, but don't run it. It rewrites the remote history of `kotlin-community/dev`:
+2. If both checks passed, the build is green and the duration is under 1.5x the baseline, push `kotlin-community/dev`. This rewrites its remote history, so always use `--force-with-lease` pinned to the old SHA, never plain `--force`:
    ```bash
-   git push --force-with-lease=kotlin-community/dev:<OLD_DEV sha> origin kotlin-community/dev
+   git push --force-with-lease=kotlin-community/dev:$OLD_DEV origin kotlin-community/dev
    ```
-5. Also mention the cleanup the user can do after pushing: delete the local working branch, `origin/$REBASE_BRANCH` (`git push origin --delete $REBASE_BRANCH`), and the backup branch.
+   If the lease check rejects the push, someone else has pushed to the branch. Don't force it: report that and ask the user.
+3. After a successful push, delete the working branch locally and on `origin`:
+   ```bash
+   git push origin --delete $REBASE_BRANCH
+   git branch -D $REBASE_BRANCH
+   ```
+   Keep the backup branch. Offer to delete it once the user confirms everything looks right.
+4. Restore any stash from step 1 if the user wants it (`git stash pop`).
+5. If the push didn't happen, keep the working branch, both locally and on `origin`, and give the user the push command and the cleanup commands.
 
 ## Final Report
 
@@ -200,4 +221,5 @@ Report:
 - Conflicts resolved, by file.
 - The dry-run command and its result.
 - The TeamCity build link and its status.
-- Whether `kotlin-community/dev` was updated locally, the backup branch name, and the suggested push command.
+- The build duration, the baseline duration, and the ratio.
+- Whether `kotlin-community/dev` was pushed, the backup branch name, and whether the working branch was deleted locally and on `origin`.
