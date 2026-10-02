@@ -1,3 +1,8 @@
+# Moved to internal repository
+
+---
+---
+
 # Agent plugins
 
 A [Codex](https://github.com/openai/codex) plugin marketplace.
